@@ -1,0 +1,9 @@
+[package]
+name = "rskenlm"
+version = "0.1.0"
+authors = ["Subu <subu@cliqz.com>"]
+
+[dependencies]
+
+[build-dependencies]
+bindgen = "0.30.0"

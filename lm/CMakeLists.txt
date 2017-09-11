@@ -30,7 +30,7 @@ set(KENLM_LM_SOURCE
 #
 add_subdirectory(common)
 
-add_library(kenlm ${KENLM_LM_SOURCE} ${KENLM_LM_COMMON_SOURCE})
+add_library(kenlm SHARED ${KENLM_LM_SOURCE} ${KENLM_LM_COMMON_SOURCE})
 set_target_properties(kenlm PROPERTIES POSITION_INDEPENDENT_CODE ON)
 target_link_libraries(kenlm PUBLIC kenlm_util ${Boost_LIBRARIES} Threads::Threads)
 
