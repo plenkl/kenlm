@@ -57,6 +57,11 @@ kenlm_state* kenlm_create_state() {
     return new kenlm_state(State());
 }
 
+
+kenlm_state* kenlm_copy_state(kenlm_state* state) {
+    return new kenlm_state(*state);
+}
+
 void kenlm_destroy_state(kenlm_state* state) {
     delete state;
 }

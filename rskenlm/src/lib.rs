@@ -14,9 +14,7 @@ mod tests {
 
     #[test]
     fn lm_load() {
-        let kenlm_model = kenlm::KenLM::from_file("src/test.arpa");
-        println!{"Score : {:?}", kenlm_model.score("screening a", true, false)};
+        let kenlm_model = kenlm::KenLM::from_file("src/test.arpa").unwrap();
+        println!{"Score : {:?}", kenlm_model.perplexity("screening a little")};
     }
 }
-
-

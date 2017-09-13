@@ -23,6 +23,7 @@ kenlm_model load_kenlm_model(const char *);
 void destroy_kenlm_model(kenlm_model); 
 
 kenlm_state*  kenlm_create_state();
+kenlm_state*  kenlm_copy_state(kenlm_state*);
 void kenlm_destroy_state(kenlm_state*);
 long unsigned int kenlm_hash_state(kenlm_state*);
 void kenlm_model_begin_sentence_write(kenlm_model model, kenlm_state *state);

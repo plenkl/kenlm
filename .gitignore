@@ -1,4 +1,6 @@
 util/file_piece.cc.gz
+bin/
+lib/
 *.swp
 *.o
 doc/

@@ -1,12 +1,24 @@
-
+use bindings::root::*;
 use std::ffi::CString;
 use std::ops::Deref;
-use bindings::root::*;
+use std::fmt;
+use std::ptr;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 struct RustState {
     _state: *mut kenlm_state,
 }
+
+pub enum LMError {
+    LoadError,
+}
+
+impl fmt::Debug for LMError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Error loading file")
+    }
+}
+
 
 impl RustState {
     fn new() -> Self {
@@ -22,6 +34,14 @@ impl Drop for RustState {
     }
 }
 
+impl Clone for RustState {
+    fn clone(&self) -> Self {
+        unsafe {
+            let rs = RustState { _state: kenlm_copy_state(self._state) };
+            return rs;
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct KenLM {
@@ -31,12 +51,15 @@ pub struct KenLM {
 
 
 impl KenLM {
-    pub fn from_file(filename: &str) -> Self {
+    pub fn from_file(filename: &str) -> Result<Self, LMError> {;
         let fn_c = CString::new(filename).unwrap();
         unsafe {
-            let model = load_kenlm_model(fn_c.as_ptr()).into();
-            let vocab = kenlm_get_vocabulary(model);
-            KenLM { model, vocab }
+            let model = load_kenlm_model(fn_c.as_ptr()) as *mut ::std::os::raw::c_void;
+            if !model.is_null() {
+                let vocab = kenlm_get_vocabulary(model);
+                return Ok(KenLM { model, vocab });
+            }
+            return Err(LMError::LoadError);
         }
     }
 
@@ -50,7 +73,7 @@ impl KenLM {
             } else {
                 kenlm_model_null_context_write(self.model, state._state);
             }
-            
+
             let mut out_state = RustState::new();
             for word in words {
                 let word_c = CString::new(word).unwrap();
@@ -61,9 +84,11 @@ impl KenLM {
                                                 wid,
                                                 out_state._state);
                 state = out_state.clone();
+
             }
 
             if eos {
+                let mut out_state = RustState::new();
                 total += kenlm_model_base_score(self.model,
                                                 self.vocab,
                                                 state._state,
