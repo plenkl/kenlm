@@ -7,7 +7,7 @@ use cmake::Config;
 
 fn main() {
     // Build kenlm shared library
-    let kenlm = Config::new("../../kenlm").build();
+    let kenlm = Config::new("../").build();
     println!("cargo:rustc-link-search=native={}/build/lib", kenlm.display());
 
     println!("cargo:rustc-link-lib=dylib=kenlm");
