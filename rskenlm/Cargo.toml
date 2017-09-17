@@ -7,3 +7,4 @@ authors = ["Subu <subu@cliqz.com>"]
 
 [build-dependencies]
 bindgen = "0.30.0"
+cmake = "0.1.25"

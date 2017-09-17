@@ -111,3 +111,5 @@ if(ENABLE_PYTHON)
   add_subdirectory(python)
 endif()
 
+add_library(kenlmrust SHARED c_api/load.cpp)
+target_link_libraries(kenlmrust kenlm)

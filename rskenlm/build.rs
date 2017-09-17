@@ -1,14 +1,18 @@
 extern crate bindgen;
+extern crate cmake;
 
 use std::env;
 use std::path::PathBuf;
+use cmake::Config;
 
 fn main() {
-    println!("Starting to generate bindings..");
+    // Build kenlm shared library
+    let kenlm = Config::new("../../kenlm").build();
+    println!("cargo:rustc-link-search=native={}/build/lib", kenlm.display());
+
+    println!("cargo:rustc-link-lib=dylib=kenlm");
     println!("cargo:rustc-link-lib=dylib=kenlmrust");
-    println!("cargo:rustc-link-search=native=../lib");
-    println!("cargo:rustc-link-search=native=/usr/lib");
-    println!("cargo:rustc-link-search=native=../build/lib");
+    print!("Starting to generate bindings..");
     let bindings = bindgen::Builder::default()
         // The input header we would like to generate
         // bindings for.
