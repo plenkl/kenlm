@@ -6,7 +6,7 @@
 #![feature(libc)]
 #[cfg(test)]
 
-mod kenlm;
+pub mod kenlm;
 mod bindings;
 mod tests {
     use super::*;
