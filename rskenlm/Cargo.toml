@@ -1,6 +1,7 @@
 [package]
 name = "rskenlm"
 version = "0.1.0"
+build = "build.rs"
 authors = ["Subu <subu@cliqz.com>"]
 
 [dependencies]
