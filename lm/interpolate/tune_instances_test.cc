@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE(Toy) {
   BOOST_CHECK_CLOSE(-0.90309 * M_LN10, ln_unigrams(0, 0), 0.001);
   BOOST_CHECK_CLOSE(-1 * M_LN10, ln_unigrams(0, 1), 0.001);
   // <s>=1 doesn't matter as long as it doesn't cause NaNs.
-  BOOST_CHECK(!isnan(ln_unigrams(1, 0)));
-  BOOST_CHECK(!isnan(ln_unigrams(1, 1)));
+  BOOST_CHECK(!std::isnan(ln_unigrams(1, 0)));
+  BOOST_CHECK(!std::isnan(ln_unigrams(1, 1)));
   // a = 2
   BOOST_CHECK_CLOSE(-0.46943438 * M_LN10, ln_unigrams(2, 0), 0.001);
   BOOST_CHECK_CLOSE(-0.6146491 * M_LN10, ln_unigrams(2, 1), 0.001);
