@@ -5,7 +5,7 @@ use std::fmt;
 use std::ptr;
 
 #[derive(Debug)]
-struct RustState {
+pub struct RustState {
     _state: *mut kenlm_state,
 }
 
@@ -21,7 +21,7 @@ impl fmt::Debug for LMError {
 
 
 impl RustState {
-    fn new() -> Self {
+    pub fn new() -> Self {
         unsafe { RustState { _state: kenlm_create_state().into() } }
     }
 }
@@ -103,6 +103,36 @@ impl KenLM {
     pub fn perplexity(&self, sentence: &str) -> f32 {
         let word_count = (sentence.split_whitespace().count() + 1) as f32;
         return 10f32.powf(-self.score(sentence, true, true) / word_count);
+    }
+
+    pub fn begin_sentence_write(&self, state: &mut RustState) {
+        unsafe {
+            kenlm_model_begin_sentence_write(self.model, state._state);
+        }
+    }
+
+    pub fn null_context_write(&self, state: &mut RustState) {
+        unsafe {
+            kenlm_model_null_context_write(self.model, state._state);
+        }
+    }
+
+    pub fn base_score(&self,
+                      in_state: &mut RustState,
+                      word: &str,
+                      out_state: &mut RustState)
+                      -> f32 {
+        unsafe {
+            let word_c = CString::new(word).unwrap();
+            let wid = kenlm_vocabulary_index(self.vocab, word_c.as_ptr());
+
+            kenlm_model_base_score(self.model,
+                                   self.vocab,
+                                   in_state._state,
+                                   wid,
+                                   out_state._state)
+        }
+
     }
 }
 
