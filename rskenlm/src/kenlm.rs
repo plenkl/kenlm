@@ -116,6 +116,13 @@ impl KenLM {
             kenlm_model_null_context_write(self.model, state._state);
         }
     }
+    
+    pub fn vocab_index(&self, word: &str) -> u32 {
+        unsafe {
+            let word_c = CString::new(word).unwrap();
+            kenlm_vocabulary_index(self.vocab, word_c.as_ptr())
+        }
+    }
 
     pub fn base_score(&self,
                       in_state: &mut RustState,
