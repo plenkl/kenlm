@@ -6,7 +6,7 @@ use std::ptr;
 
 #[derive(Debug)]
 pub struct RustState {
-    _state: *mut kenlm_state,
+    pub _state: *mut kenlm_state,
 }
 
 pub enum LMError {
