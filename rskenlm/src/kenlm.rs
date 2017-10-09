@@ -49,7 +49,7 @@ pub struct KenLM {
     vocab: kenlm_vocabulary,
 }
 
-
+unsafe impl Send for KenLM { }
 impl KenLM {
     pub fn from_file(filename: &str) -> Result<Self, LMError> {;
         let fn_c = CString::new(filename).unwrap();
