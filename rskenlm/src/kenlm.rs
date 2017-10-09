@@ -50,6 +50,8 @@ pub struct KenLM {
 }
 
 unsafe impl Send for KenLM { }
+unsafe impl Sync for KenLM { }
+
 impl KenLM {
     pub fn from_file(filename: &str) -> Result<Self, LMError> {;
         let fn_c = CString::new(filename).unwrap();
