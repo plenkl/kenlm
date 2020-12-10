@@ -1,14 +1,17 @@
 extern crate bindgen;
 extern crate cmake;
 
+use cmake::Config;
 use std::env;
 use std::path::PathBuf;
-use cmake::Config;
 
 fn main() {
     // Build kenlm shared library
     let kenlm = Config::new("../").build();
-    println!("cargo:rustc-link-search=native={}/build/lib", kenlm.display());
+    println!(
+        "cargo:rustc-link-search=native={}/build/lib",
+        kenlm.display()
+    );
 
     println!("cargo:rustc-link-lib=dylib=kenlm");
     println!("cargo:rustc-link-lib=dylib=kenlmrust");
@@ -18,7 +21,8 @@ fn main() {
         // bindings for.
         .header("wrapper.h")
         .clang_arg("-I../")
-        .clang_arg("-x").clang_arg("c++")
+        .clang_arg("-x")
+        .clang_arg("c++")
         .clang_arg("-std=c++11")
         .clang_arg("-DKENLM_MAX_ORDER=6")
         .enable_cxx_namespaces()
