@@ -1,10 +1,10 @@
-use bindings::root::*;
+use crate::bindings::root as c_api;
 use std::ffi::CString;
 use std::fmt;
 
 #[derive(Debug)]
-pub struct RustState {
-    pub _state: *mut kenlm_state,
+pub struct State {
+    pub state: *mut c_api::kenlm_state,
 }
 
 pub enum LMError {
@@ -17,146 +17,147 @@ impl fmt::Debug for LMError {
     }
 }
 
-impl RustState {
+impl State {
     pub fn new() -> Self {
         unsafe {
-            RustState {
-                _state: kenlm_create_state().into(),
+            State {
+                state: c_api::kenlm_create_state(),
             }
         }
     }
 }
 
-impl Drop for RustState {
+impl Default for State {
+    fn default() -> State {
+        State::new()
+    }
+}
+
+impl Drop for State {
     fn drop(&mut self) {
         unsafe {
-            kenlm_destroy_state(self._state);
+            c_api::kenlm_destroy_state(self.state);
         }
     }
 }
 
-impl Clone for RustState {
+impl Clone for State {
     fn clone(&self) -> Self {
         unsafe {
-            let rs = RustState {
-                _state: kenlm_copy_state(self._state),
-            };
-            return rs;
+            State {
+                state: c_api::kenlm_copy_state(self.state),
+            }
         }
     }
 }
 
 #[derive(Debug)]
-pub struct KenLM {
-    model: kenlm_model,
-    vocab: kenlm_vocabulary,
+pub struct LanguageModel {
+    model: c_api::kenlm_model,
+    vocab: c_api::kenlm_vocabulary,
 }
 
-unsafe impl Send for KenLM {}
-unsafe impl Sync for KenLM {}
+unsafe impl Send for LanguageModel {}
+unsafe impl Sync for LanguageModel {}
 
-impl KenLM {
+impl LanguageModel {
     pub fn from_file(filename: &str) -> Result<Self, LMError> {
         let fn_c = CString::new(filename).unwrap();
         unsafe {
-            let model = load_kenlm_model(fn_c.as_ptr()) as *mut ::std::os::raw::c_void;
+            let model = c_api::load_kenlm_model(fn_c.as_ptr()) as *mut ::std::os::raw::c_void;
             if !model.is_null() {
-                let vocab = kenlm_get_vocabulary(model);
-                return Ok(KenLM { model, vocab });
+                let vocab = c_api::kenlm_get_vocabulary(model);
+                Ok(LanguageModel { model, vocab })
+            } else {
+                Err(LMError::LoadError)
             }
-            return Err(LMError::LoadError);
         }
     }
 
     pub fn score(&self, sentence: &str, bos: bool, eos: bool) -> f32 {
         let words: Vec<&str> = sentence.split_whitespace().collect();
         unsafe {
-            let mut state = RustState::new();
+            let mut state = State::new();
             let mut total = 0f32;
             if bos {
-                kenlm_model_begin_sentence_write(self.model, state._state);
+                c_api::kenlm_model_begin_sentence_write(self.model, state.state);
             } else {
-                kenlm_model_null_context_write(self.model, state._state);
+                c_api::kenlm_model_null_context_write(self.model, state.state);
             }
 
-            let out_state = RustState::new();
+            let out_state = State::new();
             for word in words {
                 let word_c = CString::new(word).unwrap();
-                let wid = kenlm_vocabulary_index(self.vocab, word_c.as_ptr());
-                total += kenlm_model_base_score(
+                let wid = c_api::kenlm_vocabulary_index(self.vocab, word_c.as_ptr());
+                total += c_api::kenlm_model_base_score(
                     self.model,
                     self.vocab,
-                    state._state,
+                    state.state,
                     wid,
-                    out_state._state,
+                    out_state.state,
                 );
                 state = out_state.clone();
             }
 
             if eos {
-                let out_state = RustState::new();
-                total += kenlm_model_base_score(
+                let out_state = State::new();
+                total += c_api::kenlm_model_base_score(
                     self.model,
                     self.vocab,
-                    state._state,
-                    kenlm_vocabulary_end_sentence(self.vocab),
-                    out_state._state,
+                    state.state,
+                    c_api::kenlm_vocabulary_end_sentence(self.vocab),
+                    out_state.state,
                 );
             }
 
-            return total;
+            total
         }
     }
 
     pub fn perplexity(&self, sentence: &str) -> f32 {
         let word_count = (sentence.split_whitespace().count() + 1) as f32;
-        return 10f32.powf(-self.score(sentence, true, true) / word_count);
+        10f32.powf(-self.score(sentence, true, true) / word_count)
     }
 
-    pub fn begin_sentence_write(&self, state: &mut RustState) {
+    pub fn begin_sentence_write(&self, state: &mut State) {
         unsafe {
-            kenlm_model_begin_sentence_write(self.model, state._state);
+            c_api::kenlm_model_begin_sentence_write(self.model, state.state);
         }
     }
 
-    pub fn null_context_write(&self, state: &mut RustState) {
+    pub fn null_context_write(&self, state: &mut State) {
         unsafe {
-            kenlm_model_null_context_write(self.model, state._state);
+            c_api::kenlm_model_null_context_write(self.model, state.state);
         }
     }
 
     pub fn vocab_index(&self, word: &str) -> u32 {
         unsafe {
             let word_c = CString::new(word).unwrap();
-            kenlm_vocabulary_index(self.vocab, word_c.as_ptr())
+            c_api::kenlm_vocabulary_index(self.vocab, word_c.as_ptr())
         }
     }
 
-    pub fn base_score(
-        &self,
-        in_state: &mut RustState,
-        word: &str,
-        out_state: &mut RustState,
-    ) -> f32 {
+    pub fn base_score(&self, in_state: &State, word: &str, out_state: &mut State) -> f32 {
         unsafe {
             let word_c = CString::new(word).unwrap();
-            let wid = kenlm_vocabulary_index(self.vocab, word_c.as_ptr());
+            let wid = c_api::kenlm_vocabulary_index(self.vocab, word_c.as_ptr());
 
-            kenlm_model_base_score(
+            c_api::kenlm_model_base_score(
                 self.model,
                 self.vocab,
-                in_state._state,
+                in_state.state,
                 wid,
-                out_state._state,
+                out_state.state,
             )
         }
     }
 }
 
-impl Drop for KenLM {
+impl Drop for LanguageModel {
     fn drop(&mut self) {
         unsafe {
-            destroy_kenlm_model(self.model);
+            c_api::destroy_kenlm_model(self.model);
         }
     }
 }

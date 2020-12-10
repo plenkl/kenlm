@@ -6,13 +6,18 @@
 mod bindings;
 pub mod kenlm;
 
+pub use kenlm::{
+    LanguageModel,
+    State,
+};
+
 #[cfg(test)]
 mod tests {
-    use kenlm::KenLM;
+    use super::kenlm;
 
     #[test]
     fn lm_load() {
-        let kenlm_model = KenLM::from_file("src/test.arpa").unwrap();
-        println! {"Score : {:?}", kenlm_model.perplexity("screening a little")};
+        let model = kenlm::LanguageModel::from_file("src/test.arpa").unwrap();
+        println! {"Score : {:?}", model.perplexity("screening a little")};
     }
 }
