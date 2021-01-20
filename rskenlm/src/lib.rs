@@ -6,7 +6,7 @@
 mod bindings;
 pub mod kenlm;
 
-pub use kenlm::{
+pub use crate::kenlm::{
     LanguageModel,
     State,
 };

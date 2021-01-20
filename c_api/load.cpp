@@ -80,7 +80,7 @@ void kenlm_model_null_context_write(kenlm_model model, kenlm_state *state){
     m->NullContextWrite(&state->_state);
 }
 
-float kenlm_model_base_score(kenlm_model model, kenlm_vocabulary vocab, kenlm_state const * in_state, unsigned int word, kenlm_state* out_state) {
+float kenlm_model_base_score(kenlm_model model, kenlm_vocabulary vocab, kenlm_state * in_state, unsigned int word, kenlm_state* out_state) {
     lm::base::Model* m = reinterpret_cast<lm::base::Model*>(model);
     m->BaseScore(&in_state->_state, word, &out_state->_state);
     
