@@ -3,6 +3,7 @@ use std::ffi::CString;
 use std::fmt;
 
 #[derive(Debug)]
+#[repr(C)]
 pub struct State {
     pub state: *mut c_api::kenlm_state,
 }
@@ -52,6 +53,7 @@ impl Clone for State {
 }
 
 #[derive(Debug)]
+#[repr(C)]
 pub struct LanguageModel {
     model: c_api::kenlm_model,
     vocab: c_api::kenlm_vocabulary,
