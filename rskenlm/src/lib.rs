@@ -20,4 +20,10 @@ mod tests {
         let model = kenlm::LanguageModel::from_file("src/test.arpa").unwrap();
         println! {"Score : {:?}", model.perplexity("screening a little")};
     }
+
+    #[test]
+    fn lm_load_bin() {
+        let model = kenlm::LanguageModel::from_file("src/test.bin").unwrap();
+        println! {"Score : {:?}", model.perplexity("screening a little")};
+    }
 }
