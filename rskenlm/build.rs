@@ -24,7 +24,7 @@ fn main() {
         .clang_arg("-x")
         .clang_arg("c++")
         .clang_arg("-std=c++11")
-        .clang_arg("-g")
+        .clang_arg("-lboost_system")
         .clang_arg("-DKENLM_MAX_ORDER=6")
         .clang_arg("-D_GLIBCXX_USE_CXX11_ABI=0")
         .enable_cxx_namespaces()
