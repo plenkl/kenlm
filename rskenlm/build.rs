@@ -37,7 +37,7 @@ fn main() {
         println!("cargo:rustc-link-lib=static=boost");
         println!("cargo:rustc-link-search=native={}", boost_path);
     } else {
-        println!("cargo:rustc-link-lib=dylib=boost");
+        println!("cargo:rustc-link-lib=dylib=boost_system");
     }
     
     println!("Saving to bindings..");
