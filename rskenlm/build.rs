@@ -24,7 +24,6 @@ fn main() {
         .clang_arg("-x")
         .clang_arg("c++")
         .clang_arg("-std=c++11")
-        .clang_arg("-lboost_system")
         .clang_arg("-DKENLM_MAX_ORDER=6")
         .clang_arg("-D_GLIBCXX_USE_CXX11_ABI=0")
         .enable_cxx_namespaces()
@@ -34,6 +33,13 @@ fn main() {
         // Unwrap the Result and panic on failure.
         .expect("Unable to generate bindings");
 
+    if let Ok(boost_path) = env::var("STATIC_BOOST_PATH") {
+        println!("cargo:rustc-link-lib=static=boost");
+        println!("cargo:rustc-link-search=native={}", boost_path);
+    } else {
+        println!("cargo:rustc-link-lib=dylib=boost");
+    }
+    
     println!("Saving to bindings..");
     // Write the bindings to the $OUT_DIR/bindings.rs file.
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
